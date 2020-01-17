@@ -5,7 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { CancellationToken, Command, Disposable, env, Event, EventEmitter, LogLevel, Memento, OutputChannel, ProgressLocation, ProgressOptions, scm, SourceControl, SourceControlInputBox, SourceControlResourceDecorations, SourceControlResourceGroup, SourceControlResourceState, ThemeColor, Uri, window, workspace, WorkspaceEdit, Decoration } from 'vscode';
+import { CancellationToken, Command, Disposable, env, Event, EventEmitter, LogLevel, Memento, OutputChannel, ProgressLocation, ProgressOptions, scm, SourceControl, SourceControlInputBox, SourceControlResourceDecorations, SourceControlResourceGroup, SourceControlResourceState, ThemeColor, Uri, window, workspace, WorkspaceEdit, Decoration, languages, DiagnosticCollection, DiagnosticSeverity, Range, Diagnostic } from 'vscode';
 import * as nls from 'vscode-nls';
 import { Branch, Change, GitErrorCodes, LogOptions, Ref, RefType, Remote, Status } from './api/git';
 import { AutoFetcher } from './autofetch';
@@ -661,6 +661,8 @@ export class Repository implements Disposable {
 	private isRepositoryHuge = false;
 	private didWarnAboutLimit = false;
 
+	private diagnostics: DiagnosticCollection;
+
 	private disposables: Disposable[] = [];
 
 	constructor(
@@ -705,6 +707,9 @@ export class Repository implements Disposable {
 
 		this._sourceControl.acceptInputCommand = { command: 'git.commit', title: localize('commit', "Commit"), arguments: [this._sourceControl] };
 		this._sourceControl.quickDiffProvider = this;
+
+		this.diagnostics = languages.createDiagnosticCollection();
+		this._sourceControl.inputBox.onDidChange(this.validateInput, this, this.disposables);
 		// this._sourceControl.inputBox.validateInput = this.validateInput.bind(this);
 		this.disposables.push(this._sourceControl);
 
@@ -764,70 +769,43 @@ export class Repository implements Disposable {
 		this.setCountBadge();
 	}
 
-	// validateInput(text: string, position: number): SourceControlInputBoxValidation | undefined {
-	// 	if (this.rebaseCommit) {
-	// 		if (this.rebaseCommit.message !== text) {
-	// 			return {
-	// 				message: localize('commit in rebase', "It's not possible to change the commit message in the middle of a rebase. Please complete the rebase operation and use interactive rebase instead."),
-	// 				type: SourceControlInputBoxValidationType.Warning
-	// 			};
-	// 		}
-	// 	}
+	validateInput(text: string): void {
+		const config = workspace.getConfiguration('git');
+		const setting = config.get<'warn' | 'off'>('inputValidation');
 
-	// 	const config = workspace.getConfiguration('git');
-	// 	const setting = config.get<'always' | 'warn' | 'off'>('inputValidation');
+		if (setting === 'off') {
+			this.diagnostics.clear();
+			return;
+		}
 
-	// 	if (setting === 'off') {
-	// 		return;
-	// 	}
+		if (/^\s+$/.test(text)) {
+			this.diagnostics.set(this.sourceControl.inputBox.resource, [{
+				message: localize('commitMessageWhitespacesOnlyWarning', "Current commit message only contains whitespace characters"),
+				severity: DiagnosticSeverity.Warning,
+				range: new Range(0, 0, 1000, 0)
+			}]);
+			return;
+		}
 
-	// 	if (/^\s+$/.test(text)) {
-	// 		return {
-	// 			message: localize('commitMessageWhitespacesOnlyWarning', "Current commit message only contains whitespace characters"),
-	// 			type: SourceControlInputBoxValidationType.Warning
-	// 		};
-	// 	}
+		const inputValidationLength = config.get<number>('inputValidationLength', 50);
+		const inputValidationSubjectLength = config.get<number | null>('inputValidationSubjectLength', null);
+		const lines = text.split(/\r?\n/);
+		const diagnostics: Diagnostic[] = [];
 
-	// 	let lineNumber = 0;
-	// 	let start = 0, end;
-	// 	let match: RegExpExecArray | null;
-	// 	const regex = /\r?\n/g;
+		lines.forEach((line, lineNumber) => {
+			const threshold = lineNumber === 0 && inputValidationSubjectLength !== null ? inputValidationSubjectLength : inputValidationLength;
 
-	// 	while ((match = regex.exec(text)) && position > match.index) {
-	// 		start = match.index + match[0].length;
-	// 		lineNumber++;
-	// 	}
+			if (line.length > threshold) {
+				diagnostics.push({
+					message: localize('commitMessageWarning', "{0} characters over {1} in current line", line.length - threshold, threshold),
+					severity: DiagnosticSeverity.Warning,
+					range: new Range(lineNumber, 0, lineNumber, line.length)
+				});
+			}
+		});
 
-	// 	end = match ? match.index : text.length;
-
-	// 	const line = text.substring(start, end);
-
-	// 	let threshold = config.get<number>('inputValidationLength', 50);
-
-	// 	if (lineNumber === 0) {
-	// 		const inputValidationSubjectLength = config.get<number | null>('inputValidationSubjectLength', null);
-
-	// 		if (inputValidationSubjectLength !== null) {
-	// 			threshold = inputValidationSubjectLength;
-	// 		}
-	// 	}
-
-	// 	if (line.length <= threshold) {
-	// 		if (setting !== 'always') {
-	// 			return;
-	// 		}
-
-	// 		return {
-	// 			message: localize('commitMessageCountdown', "{0} characters left in current line", threshold - line.length),
-	// 			type: SourceControlInputBoxValidationType.Information
-	// 		};
-	// 	} else {
-	// 		return {
-	// 			message: localize('commitMessageWarning', "{0} characters over {1} in current line", line.length - threshold, threshold),
-	// 			type: SourceControlInputBoxValidationType.Warning
-	// 		};
-	// 	}
-	// }
+		this.diagnostics.set(this.sourceControl.inputBox.resource, diagnostics);
+	}
 
 	provideOriginalResource(uri: Uri): Uri | undefined {
 		if (uri.scheme !== 'file') {
