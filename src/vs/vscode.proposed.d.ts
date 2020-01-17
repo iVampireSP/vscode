@@ -907,6 +907,22 @@ declare module 'vscode' {
 
 	//#endregion
 
+	//#region Joao: SCM Input Box event
+
+	/**
+	 * Represents the input box in the Source Control viewlet.
+	 */
+	export interface SourceControlInputBox {
+
+		/**
+			* An [event](#Event) which fires when the value of a
+			* [SourceControlInputBox](#SourceControlInputBox) changes.
+			*/
+		readonly onDidChange: Event<string>;
+	}
+
+	//#endregion
+
 	//#region Terminal data write event https://github.com/microsoft/vscode/issues/78502
 
 	export interface TerminalDataWriteEvent {
