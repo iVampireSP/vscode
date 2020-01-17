@@ -5,7 +5,7 @@
 
 import { IDisposable, toDisposable } from 'vs/base/common/lifecycle';
 import { Event, Emitter } from 'vs/base/common/event';
-import { ISCMService, ISCMProvider, ISCMInput, ISCMRepository, IInputValidator } from './scm';
+import { ISCMService, ISCMProvider, ISCMInput, ISCMRepository } from './scm';
 import { ILogService } from 'vs/platform/log/common/log';
 import { equals } from 'vs/base/common/arrays';
 
@@ -56,20 +56,6 @@ class SCMInput implements ISCMInput {
 
 	private readonly _onDidChangeVisibility = new Emitter<boolean>();
 	readonly onDidChangeVisibility: Event<boolean> = this._onDidChangeVisibility.event;
-
-	private _validateInput: IInputValidator = () => Promise.resolve(undefined);
-
-	get validateInput(): IInputValidator {
-		return this._validateInput;
-	}
-
-	set validateInput(validateInput: IInputValidator) {
-		this._validateInput = validateInput;
-		this._onDidChangeValidateInput.fire();
-	}
-
-	private readonly _onDidChangeValidateInput = new Emitter<void>();
-	readonly onDidChangeValidateInput: Event<void> = this._onDidChangeValidateInput.event;
 }
 
 class SCMRepository implements ISCMRepository {

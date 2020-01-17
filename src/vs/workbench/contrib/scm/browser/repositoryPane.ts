@@ -10,7 +10,7 @@ import { IDisposable, Disposable, DisposableStore, combinedDisposable } from 'vs
 import { ViewPane, IViewPaneOptions } from 'vs/workbench/browser/parts/views/viewPaneContainer';
 import { append, $, addClass, toggleClass, trackFocus, removeClass } from 'vs/base/browser/dom';
 import { IListVirtualDelegate, IIdentityProvider } from 'vs/base/browser/ui/list/list';
-import { ISCMRepository, ISCMResourceGroup, ISCMResource, InputValidationType } from 'vs/workbench/contrib/scm/common/scm';
+import { ISCMRepository, ISCMResourceGroup, ISCMResource } from 'vs/workbench/contrib/scm/common/scm';
 import { ResourceLabels, IResourceLabel } from 'vs/workbench/browser/labels';
 import { CountBadge } from 'vs/base/browser/ui/countBadge/countBadge';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
@@ -29,7 +29,7 @@ import { isSCMResource, isSCMResourceGroup, connectPrimaryMenuToInlineActionBar 
 import { attachBadgeStyler } from 'vs/platform/theme/common/styler';
 import { WorkbenchCompressibleObjectTree } from 'vs/platform/list/browser/listService';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
-import { disposableTimeout, ThrottledDelayer } from 'vs/base/common/async';
+import { disposableTimeout } from 'vs/base/common/async';
 import { INotificationService } from 'vs/platform/notification/common/notification';
 import { ITreeNode, ITreeFilter, ITreeSorter, ITreeContextMenuEvent } from 'vs/base/browser/ui/tree/tree';
 import { ResourceTree, IResourceNode } from 'vs/base/common/resourceTree';
@@ -66,7 +66,6 @@ import { inputPlaceholderForeground } from 'vs/platform/theme/common/colorRegist
 import { SuggestController } from 'vs/editor/contrib/suggest/suggestController';
 import { SnippetController2 } from 'vs/editor/contrib/snippet/snippetController2';
 import { Schemas } from 'vs/base/common/network';
-import { IMarkerService, MarkerSeverity } from 'vs/platform/markers/common/markers';
 import { ModesHoverController } from 'vs/editor/contrib/hover/hover';
 import { ColorDetector } from 'vs/editor/contrib/colorPicker/colorDetector';
 
@@ -593,14 +592,6 @@ export class ToggleViewModeAction extends Action {
 	}
 }
 
-function convertValidationType(type: InputValidationType): MarkerSeverity {
-	switch (type) {
-		case InputValidationType.Information: return MarkerSeverity.Info;
-		case InputValidationType.Warning: return MarkerSeverity.Warning;
-		case InputValidationType.Error: return MarkerSeverity.Error;
-	}
-}
-
 export class RepositoryPane extends ViewPane {
 
 	private cachedHeight: number | undefined = undefined;
@@ -632,8 +623,7 @@ export class RepositoryPane extends ViewPane {
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IMenuService protected menuService: IMenuService,
 		@IStorageService private storageService: IStorageService,
-		@IModelService private modelService: IModelService,
-		@IMarkerService private markerService: IMarkerService
+		@IModelService private modelService: IModelService
 	) {
 		super(options, keybindingService, contextMenuService, configurationService, contextKeyService, instantiationService);
 
@@ -684,32 +674,6 @@ export class RepositoryPane extends ViewPane {
 
 			placeholderTextContainer.textContent = placeholderText;
 		};
-
-		const validationDelayer = new ThrottledDelayer<any>(200);
-		const validate = () => {
-			const position = this.inputEditor.getSelection()?.getStartPosition();
-			const offset = position && this.inputModel.getOffsetAt(position);
-			const value = this.inputModel.getValue();
-
-			return this.repository.input.validateInput(value, offset || 0).then(result => {
-				if (!result) {
-					this.markerService.changeOne('scm', uri, []);
-				} else {
-					const range = this.inputModel.getFullModelRange();
-
-					this.markerService.changeOne('scm', uri, [{
-						message: result.message,
-						severity: convertValidationType(result.type),
-						startLineNumber: range.startLineNumber,
-						startColumn: range.startColumn,
-						endLineNumber: range.endLineNumber,
-						endColumn: range.endColumn
-					}]);
-				}
-			});
-		};
-
-		const triggerValidation = () => validationDelayer.trigger(validate);
 
 		const editorOptions: IEditorConstructionOptions = {
 			...getSimpleEditorOptions(),
@@ -762,8 +726,6 @@ export class RepositoryPane extends ViewPane {
 			accessor.addZone({ afterLineNumber: 0, domNode: $('div'), heightInPx: 3 });
 		});
 
-		this._register(this.inputEditor.onDidChangeCursorPosition(triggerValidation));
-
 		// Keep model in sync with API
 		this.inputModel.setValue(this.repository.input.value);
 		this._register(this.repository.input.onDidChange(value => this.inputModel.setValue(value)));
@@ -772,7 +734,6 @@ export class RepositoryPane extends ViewPane {
 		this.inputModel.onDidChangeContent(() => {
 			this.repository.input.value = this.inputModel.getValue();
 			toggleClass(placeholderTextContainer, 'hidden', this.inputModel.getValueLength() > 0);
-			triggerValidation();
 		});
 
 		updatePlaceholder();

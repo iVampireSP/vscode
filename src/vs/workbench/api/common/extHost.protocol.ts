@@ -734,7 +734,6 @@ export interface MainThreadSCMShape extends IDisposable {
 	$setInputBoxValue(sourceControlHandle: number, value: string): void;
 	$setInputBoxPlaceholder(sourceControlHandle: number, placeholder: string): void;
 	$setInputBoxVisibility(sourceControlHandle: number, visible: boolean): void;
-	$setValidationProviderIsEnabled(sourceControlHandle: number, enabled: boolean): void;
 }
 
 export type DebugSessionUUID = string;
@@ -1270,7 +1269,6 @@ export interface ExtHostSCMShape {
 	$provideOriginalResource(sourceControlHandle: number, uri: UriComponents, token: CancellationToken): Promise<UriComponents | null>;
 	$onInputBoxValueChange(sourceControlHandle: number, value: string): void;
 	$executeResourceCommand(sourceControlHandle: number, groupHandle: number, handle: number): Promise<void>;
-	$validateInput(sourceControlHandle: number, value: string, cursorPosition: number): Promise<[string, number] | undefined>;
 	$setSelectedSourceControls(selectedSourceControlHandles: number[]): Promise<void>;
 }
 

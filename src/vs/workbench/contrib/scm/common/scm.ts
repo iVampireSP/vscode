@@ -85,9 +85,6 @@ export interface ISCMInput {
 	placeholder: string;
 	readonly onDidChangePlaceholder: Event<string>;
 
-	validateInput: IInputValidator;
-	readonly onDidChangeValidateInput: Event<void>;
-
 	visible: boolean;
 	readonly onDidChangeVisibility: Event<boolean>;
 }

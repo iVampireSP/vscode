@@ -7,7 +7,7 @@ import { URI, UriComponents } from 'vs/base/common/uri';
 import { Event, Emitter } from 'vs/base/common/event';
 import { assign } from 'vs/base/common/objects';
 import { IDisposable, DisposableStore } from 'vs/base/common/lifecycle';
-import { ISCMService, ISCMRepository, ISCMProvider, ISCMResource, ISCMResourceGroup, ISCMResourceDecorations, IInputValidation } from 'vs/workbench/contrib/scm/common/scm';
+import { ISCMService, ISCMRepository, ISCMProvider, ISCMResource, ISCMResourceGroup, ISCMResourceDecorations } from 'vs/workbench/contrib/scm/common/scm';
 import { ExtHostContext, MainThreadSCMShape, ExtHostSCMShape, SCMProviderFeatures, SCMRawResourceSplices, SCMGroupFeatures, MainContext, IExtHostContext } from '../common/extHost.protocol';
 import { Command } from 'vs/editor/common/modes';
 import { extHostNamedCustomer } from 'vs/workbench/api/common/extHostCustomers';
@@ -404,23 +404,6 @@ export class MainThreadSCM implements MainThreadSCMShape {
 		}
 
 		repository.input.visible = visible;
-	}
-
-	$setValidationProviderIsEnabled(sourceControlHandle: number, enabled: boolean): void {
-		const repository = this._repositories.get(sourceControlHandle);
-
-		if (!repository) {
-			return;
-		}
-
-		if (enabled) {
-			repository.input.validateInput = async (value, pos): Promise<IInputValidation | undefined> => {
-				const result = await this._proxy.$validateInput(sourceControlHandle, value, pos);
-				return result && { message: result[0], type: result[1] };
-			};
-		} else {
-			repository.input.validateInput = async () => undefined;
-		}
 	}
 
 	private onDidChangeSelectedRepositories(repositories: ISCMRepository[]): void {
