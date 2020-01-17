@@ -166,18 +166,18 @@ export async function activate(context: ExtensionContext): Promise<GitExtension>
 	try {
 		const model = await createModel(context, outputChannel, telemetryReporter, disposables);
 
-		languages.registerCompletionItemProvider({ scheme: 'vscode', pattern: 'scm/git/**/input' }, new class implements CompletionItemProvider {
-			provideCompletionItems(document: TextDocument): CompletionItem[] {
-				const uri = document.uri;
-				const query = qs.parse(uri.query);
-				const rootUri = Uri.parse(query.rootUri as string);
-				const repository = model.getRepository(rootUri);
+		// languages.registerCompletionItemProvider({ scheme: 'vscode', pattern: 'scm/git/**/input' }, new class implements CompletionItemProvider {
+		// 	provideCompletionItems(document: TextDocument): CompletionItem[] {
+		// 		const uri = document.uri;
+		// 		const query = qs.parse(uri.query);
+		// 		const rootUri = Uri.parse(query.rootUri as string);
+		// 		const repository = model.getRepository(rootUri);
 
-				console.log(rootUri, repository);
+		// 		console.log(rootUri, repository);
 
-				return [{ label: 'hello' }];
-			}
-		});
+		// 		return [{ label: 'hello' }];
+		// 	}
+		// });
 
 		return new GitExtensionImpl(model);
 	} catch (err) {
