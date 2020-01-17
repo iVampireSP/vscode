@@ -15,7 +15,6 @@
  */
 
 declare module 'vscode' {
-
 	// #region auth provider: https://github.com/microsoft/vscode/issues/88309
 
 	export interface Session {
@@ -79,14 +78,14 @@ declare module 'vscode' {
 	}
 
 	export interface TunnelOptions {
-		remoteAddress: { port: number, host: string };
+		remoteAddress: { port: number; host: string };
 		// The desired local port. If this port can't be used, then another will be chosen.
 		localAddressPort?: number;
 		label?: string;
 	}
 
 	export interface TunnelDescription {
-		remoteAddress: { port: number, host: string };
+		remoteAddress: { port: number; host: string };
 		//The complete local address(ex. localhost:1234)
 		localAddress: string;
 	}
@@ -155,7 +154,10 @@ declare module 'vscode' {
 	}
 
 	export namespace workspace {
-		export function registerRemoteAuthorityResolver(authorityPrefix: string, resolver: RemoteAuthorityResolver): Disposable;
+		export function registerRemoteAuthorityResolver(
+			authorityPrefix: string,
+			resolver: RemoteAuthorityResolver
+		): Disposable;
 		export function registerResourceLabelFormatter(formatter: ResourceLabelFormatter): Disposable;
 	}
 
@@ -271,7 +273,10 @@ declare module 'vscode' {
 		 *    [  2,5,3,0,3,  0,5,4,1,0,  3,2,7,2,0 ]
 		 * ```
 		 */
-		provideDocumentSemanticTokens(document: TextDocument, token: CancellationToken): ProviderResult<SemanticTokens | SemanticTokensEdits>;
+		provideDocumentSemanticTokens(
+			document: TextDocument,
+			token: CancellationToken
+		): ProviderResult<SemanticTokens | SemanticTokensEdits>;
 
 		/**
 		 * Instead of always returning all the tokens in a file, it is possible for a `DocumentSemanticTokensProvider` to implement
@@ -326,7 +331,11 @@ declare module 'vscode' {
 		 * *NOTE*: If the provider cannot compute `SemanticTokensEdits`, it can "give up" and return all the tokens in the document again.
 		 * *NOTE*: All edits in `SemanticTokensEdits` contain indices in the old integers array, so they all refer to the previous result state.
 		 */
-		provideDocumentSemanticTokensEdits?(document: TextDocument, previousResultId: string, token: CancellationToken): ProviderResult<SemanticTokens | SemanticTokensEdits>;
+		provideDocumentSemanticTokensEdits?(
+			document: TextDocument,
+			previousResultId: string,
+			token: CancellationToken
+		): ProviderResult<SemanticTokens | SemanticTokensEdits>;
 	}
 
 	/**
@@ -337,7 +346,11 @@ declare module 'vscode' {
 		/**
 		 * See [provideDocumentSemanticTokens](#DocumentSemanticTokensProvider.provideDocumentSemanticTokens).
 		 */
-		provideDocumentRangeSemanticTokens(document: TextDocument, range: Range, token: CancellationToken): ProviderResult<SemanticTokens>;
+		provideDocumentRangeSemanticTokens(
+			document: TextDocument,
+			range: Range,
+			token: CancellationToken
+		): ProviderResult<SemanticTokens>;
 	}
 
 	export namespace languages {
@@ -352,7 +365,11 @@ declare module 'vscode' {
 		 * @param provider A document semantic tokens provider.
 		 * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
 		 */
-		export function registerDocumentSemanticTokensProvider(selector: DocumentSelector, provider: DocumentSemanticTokensProvider, legend: SemanticTokensLegend): Disposable;
+		export function registerDocumentSemanticTokensProvider(
+			selector: DocumentSelector,
+			provider: DocumentSemanticTokensProvider,
+			legend: SemanticTokensLegend
+		): Disposable;
 
 		/**
 		 * Register a semantic tokens provider for a document range.
@@ -365,7 +382,11 @@ declare module 'vscode' {
 		 * @param provider A document range semantic tokens provider.
 		 * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
 		 */
-		export function registerDocumentRangeSemanticTokensProvider(selector: DocumentSelector, provider: DocumentRangeSemanticTokensProvider, legend: SemanticTokensLegend): Disposable;
+		export function registerDocumentRangeSemanticTokensProvider(
+			selector: DocumentSelector,
+			provider: DocumentRangeSemanticTokensProvider,
+			legend: SemanticTokensLegend
+		): Disposable;
 	}
 
 	//#endregion
@@ -382,7 +403,12 @@ declare module 'vscode' {
 	}
 
 	export namespace window {
-		export function createWebviewTextEditorInset(editor: TextEditor, line: number, height: number, options?: WebviewOptions): WebviewEditorInset;
+		export function createWebviewTextEditorInset(
+			editor: TextEditor,
+			line: number,
+			height: number,
+			options?: WebviewOptions
+		): WebviewEditorInset;
 	}
 
 	//#endregion
@@ -612,7 +638,12 @@ declare module 'vscode' {
 		 * @param progress A progress callback that must be invoked for all results.
 		 * @param token A cancellation token.
 		 */
-		provideTextSearchResults(query: TextSearchQuery, options: TextSearchOptions, progress: Progress<TextSearchResult>, token: CancellationToken): ProviderResult<TextSearchComplete>;
+		provideTextSearchResults(
+			query: TextSearchQuery,
+			options: TextSearchOptions,
+			progress: Progress<TextSearchResult>,
+			token: CancellationToken
+		): ProviderResult<TextSearchComplete>;
 	}
 
 	//#endregion
@@ -661,7 +692,11 @@ declare module 'vscode' {
 		 * @param options A set of options to consider while searching files.
 		 * @param token A cancellation token.
 		 */
-		provideFileSearchResults(query: FileSearchQuery, options: FileSearchOptions, token: CancellationToken): ProviderResult<Uri[]>;
+		provideFileSearchResults(
+			query: FileSearchQuery,
+			options: FileSearchOptions,
+			token: CancellationToken
+		): ProviderResult<Uri[]>;
 	}
 
 	export namespace workspace {
@@ -763,7 +798,11 @@ declare module 'vscode' {
 		 * @param token A token that can be used to signal cancellation to the underlying search engine.
 		 * @return A thenable that resolves when the search is complete.
 		 */
-		export function findTextInFiles(query: TextSearchQuery, callback: (result: TextSearchResult) => void, token?: CancellationToken): Thenable<TextSearchComplete>;
+		export function findTextInFiles(
+			query: TextSearchQuery,
+			callback: (result: TextSearchResult) => void,
+			token?: CancellationToken
+		): Thenable<TextSearchComplete>;
 
 		/**
 		 * Search text in files across all [workspace folders](#workspace.workspaceFolders) in the workspace.
@@ -773,7 +812,12 @@ declare module 'vscode' {
 		 * @param token A token that can be used to signal cancellation to the underlying search engine.
 		 * @return A thenable that resolves when the search is complete.
 		 */
-		export function findTextInFiles(query: TextSearchQuery, options: FindTextInFilesOptions, callback: (result: TextSearchResult) => void, token?: CancellationToken): Thenable<TextSearchComplete>;
+		export function findTextInFiles(
+			query: TextSearchQuery,
+			options: FindTextInFilesOptions,
+			callback: (result: TextSearchResult) => void,
+			token?: CancellationToken
+		): Thenable<TextSearchComplete>;
 	}
 
 	//#endregion
@@ -791,7 +835,6 @@ declare module 'vscode' {
 	}
 
 	export namespace commands {
-
 		/**
 		 * Registers a diff information command that can be invoked via a keyboard shortcut,
 		 * a menu item, an action, or directly.
@@ -806,7 +849,11 @@ declare module 'vscode' {
 		 * @param thisArg The `this` context used when invoking the handler function.
 		 * @return Disposable which unregisters this command on disposal.
 		 */
-		export function registerDiffInformationCommand(command: string, callback: (diff: LineChange[], ...args: any[]) => any, thisArg?: any): Disposable;
+		export function registerDiffInformationCommand(
+			command: string,
+			callback: (diff: LineChange[], ...args: any[]) => any,
+			thisArg?: any
+		): Disposable;
 	}
 
 	//#endregion
@@ -841,7 +888,10 @@ declare module 'vscode' {
 		 * Deprecated, use DebugAdapterDescriptorFactory.provideDebugAdapter instead.
 		 * @deprecated Use DebugAdapterDescriptorFactory.createDebugAdapterDescriptor instead
 		 */
-		debugAdapterExecutable?(folder: WorkspaceFolder | undefined, token?: CancellationToken): ProviderResult<DebugAdapterExecutable>;
+		debugAdapterExecutable?(
+			folder: WorkspaceFolder | undefined,
+			token?: CancellationToken
+		): ProviderResult<DebugAdapterExecutable>;
 	}
 
 	//#endregion
@@ -881,7 +931,6 @@ declare module 'vscode' {
 	 * Represents the validation type of the Source Control input.
 	 */
 	export enum SourceControlInputBoxValidationType {
-
 		/**
 		 * Something not allowed by the rules of a language or other means.
 		 */
@@ -899,7 +948,6 @@ declare module 'vscode' {
 	}
 
 	export interface SourceControlInputBoxValidation {
-
 		/**
 		 * The validation message to display.
 		 */
@@ -915,12 +963,14 @@ declare module 'vscode' {
 	 * Represents the input box in the Source Control viewlet.
 	 */
 	export interface SourceControlInputBox {
-
 		/**
 		 * A validation function for the input box. It's possible to change
 		 * the validation provider simply by setting this property to a different function.
 		 */
-		validateInput?(value: string, cursorPosition: number): ProviderResult<SourceControlInputBoxValidation | undefined | null>;
+		validateInput?(
+			value: string,
+			cursorPosition: number
+		): ProviderResult<SourceControlInputBoxValidation | undefined | null>;
 	}
 
 	//#endregion
@@ -928,7 +978,6 @@ declare module 'vscode' {
 	//#region Joao: SCM selected provider
 
 	export interface SourceControl {
-
 		/**
 		 * Whether the source control is selected.
 		 */
@@ -948,10 +997,9 @@ declare module 'vscode' {
 	 * Represents the input box in the Source Control viewlet.
 	 */
 	export interface SourceControlInputBox {
-
 		/**
-			* Controls whether the input box is visible (default is `true`).
-			*/
+		 * Controls whether the input box is visible (default is `true`).
+		 */
 		visible: boolean;
 	}
 
@@ -1069,7 +1117,6 @@ declare module 'vscode' {
 	 * Label describing the [Tree item](#TreeItem)
 	 */
 	export interface TreeItemLabel {
-
 		/**
 		 * A human-readable string describing the [Tree item](#TreeItem).
 		 */
@@ -1080,7 +1127,6 @@ declare module 'vscode' {
 		 * first is the inclusive start index and the second the exclusive end index
 		 */
 		highlights?: [number, number][];
-
 	}
 
 	export class TreeItem2 extends TreeItem {
@@ -1130,12 +1176,10 @@ declare module 'vscode' {
 	//#region Status bar item with ID and Name: https://github.com/microsoft/vscode/issues/74972
 
 	export namespace window {
-
 		/**
 		 * Options to configure the status bar item.
 		 */
 		export interface StatusBarItemOptions {
-
 			/**
 			 * A unique identifier of the status bar item. The identifier
 			 * is for example used to allow a user to show or hide the
@@ -1206,7 +1250,7 @@ declare module 'vscode' {
 		/**
 		 * Event triggered by extensions to signal to VS Code that an edit has occurred.
 		 */
-		readonly onEdit: Event<{ readonly resource: Uri, readonly edit: EditType }>;
+		readonly onEdit: Event<{ readonly resource: Uri; readonly edit: EditType }>;
 
 		/**
 		 * Apply a set of edits.
@@ -1245,10 +1289,7 @@ declare module 'vscode' {
 		 *
 		 * @return Thenable indicating that the webview editor has been resolved.
 		 */
-		resolveWebviewEditor(
-			resource: Uri,
-			webview: WebviewPanel,
-		): Thenable<void>;
+		resolveWebviewEditor(resource: Uri, webview: WebviewPanel): Thenable<void>;
 
 		/**
 		 * Controls the editing functionality of a webview editor. This allows the webview editor to hook into standard
@@ -1273,19 +1314,18 @@ declare module 'vscode' {
 		export function registerWebviewCustomEditorProvider(
 			viewType: string,
 			provider: WebviewCustomEditorProvider,
-			options?: WebviewPanelOptions,
+			options?: WebviewPanelOptions
 		): Disposable;
 	}
 
 	//#endregion
 
-
 	//#region allow QuickPicks to skip sorting: https://github.com/microsoft/vscode/issues/73904
 
 	export interface QuickPick<T extends QuickPickItem> extends QuickInput {
 		/**
-		* An optional flag to sort the final results by index of first query match in label. Defaults to true.
-		*/
+		 * An optional flag to sort the final results by index of first query match in label. Defaults to true.
+		 */
 		sortByLabel: boolean;
 	}
 
@@ -1314,7 +1354,6 @@ declare module 'vscode' {
 	//#region Allow theme icons in hovers: https://github.com/microsoft/vscode/issues/84695
 
 	export interface MarkdownString {
-
 		/**
 		 * Indicates that this markdown string can contain [ThemeIcons](#ThemeIcon), e.g. `$(zap)`.
 		 */
@@ -1325,13 +1364,12 @@ declare module 'vscode' {
 
 	//#region Language specific settings: https://github.com/microsoft/vscode/issues/26707
 
-	export type ConfigurationScope = Uri | TextDocument | WorkspaceFolder | { uri?: Uri, languageId: string };
+	export type ConfigurationScope = Uri | TextDocument | WorkspaceFolder | { uri?: Uri; languageId: string };
 
 	/**
 	 * An event describing the change in Configuration
 	 */
 	export interface ConfigurationChangeEvent {
-
 		/**
 		 * Returns `true` if the given section is affected in the provided scope.
 		 *
@@ -1343,7 +1381,6 @@ declare module 'vscode' {
 	}
 
 	export namespace workspace {
-
 		/**
 		 * Get a workspace configuration object.
 		 *
@@ -1356,8 +1393,10 @@ declare module 'vscode' {
 		 * @param section A dot-separated identifier.
 		 * @return The full configuration or a subset.
 		 */
-		export function getConfiguration(section?: string | undefined, scope?: ConfigurationScope | null): WorkspaceConfiguration;
-
+		export function getConfiguration(
+			section?: string | undefined,
+			scope?: ConfigurationScope | null
+		): WorkspaceConfiguration;
 	}
 
 	/**
@@ -1425,7 +1464,6 @@ declare module 'vscode' {
 	 * Refer to [Settings](https://code.visualstudio.com/docs/getstarted/settings) for more information.
 	 */
 	export interface WorkspaceConfiguration {
-
 		/**
 		 * Retrieve all information about a configuration setting. A configuration value
 		 * often consists of a *default* value, a global or installation-wide value,
@@ -1438,22 +1476,25 @@ declare module 'vscode' {
 		 * @param section Configuration name, supports _dotted_ names.
 		 * @return Information about a configuration setting or `undefined`.
 		 */
-		inspect<T>(section: string): {
-			key: string;
+		inspect<T>(
+			section: string
+		):
+			| {
+				key: string;
 
-			defaultValue?: T;
-			globalValue?: T;
-			workspaceValue?: T,
-			workspaceFolderValue?: T,
+				defaultValue?: T;
+				globalValue?: T;
+				workspaceValue?: T;
+				workspaceFolderValue?: T;
 
-			defaultLanguageValue?: T;
-			userLanguageValue?: T;
-			workspaceLanguageValue?: T;
-			workspaceFolderLanguageValue?: T;
+				defaultLanguageValue?: T;
+				userLanguageValue?: T;
+				workspaceLanguageValue?: T;
+				workspaceFolderLanguageValue?: T;
 
-			languages?: string[];
-
-		} | undefined;
+				languages?: string[];
+			}
+			| undefined;
 
 		/**
 		 * Update a configuration value. The updated configuration values are persisted.
@@ -1484,7 +1525,12 @@ declare module 'vscode' {
 		 *	- configuration to workspace folder when there is no workspace folder settings.
 		 *	- configuration to workspace folder when [WorkspaceConfiguration](#WorkspaceConfiguration) is not scoped to a resource.
 		 */
-		update(section: string, value: any, configurationTarget?: ConfigurationTarget | boolean, scopeToLanguage?: boolean): Thenable<void>;
+		update(
+			section: string,
+			value: any,
+			configurationTarget?: ConfigurationTarget | boolean,
+			scopeToLanguage?: boolean
+		): Thenable<void>;
 	}
 
 	//#endregion
@@ -1504,7 +1550,6 @@ declare module 'vscode' {
 	 * Represents a color theme.
 	 */
 	export interface ColorTheme {
-
 		/**
 		 * The kind of this color theme: light, dark or high contrast.
 		 */
@@ -1526,7 +1571,6 @@ declare module 'vscode' {
 
 	//#endregion
 
-
 	//#region https://github.com/microsoft/vscode/issues/39441
 
 	export interface CompletionList {
@@ -1544,12 +1588,6 @@ declare module 'vscode' {
 		date: number;
 
 		/**
-		 * A human-readable string describing the source of the timeline item. This can be used for filtering by sources so keep it consistent across timeline item types.
-		 */
-		source: string;
-
-
-		/**
 		 * A human-readable string describing the timeline item. When `falsy`, it is derived from [resourceUri](#TreeItem.resourceUri).
 		 */
 		label: string;
@@ -1562,7 +1600,7 @@ declare module 'vscode' {
 		/**
 		 * The icon path or [ThemeIcon](#ThemeIcon) for the timeline item. See [TreeItem.iconPath](#TreeItem.iconPath) for more details.
 		 */
-		iconPath?: string | Uri | { light: string | Uri; dark: string | Uri } | ThemeIcon;
+		iconPath?: Uri | { light: Uri; dark: Uri } | ThemeIcon;
 
 		/**
 		 * A human readable string describing less prominent details of the timeline item. See [TreeItem.description](#TreeItem.description) for more details.
@@ -1570,14 +1608,9 @@ declare module 'vscode' {
 		description?: string;
 
 		/**
-		 * The [uri](#Uri) of the resource representing the timeline item (if any). See [TreeItem.resourceUri](#TreeItem.resourceUri) for more details.
-		 */
-		resourceUri?: Uri;
-
-		/**
 		 * The tooltip text when you hover over the timeline item.
 		 */
-		tooltip?: string | undefined;
+		detail?: string;
 
 		/**
 		 * The [command](#Command) that should be executed when the timeline item is selected.
@@ -1597,36 +1630,47 @@ declare module 'vscode' {
 		constructor(label: string, date: number, source: string);
 	}
 
-	export interface TimelimeAddEvent {
+	// export interface TimelimeAddEvent {
+	// 	/**
+	// 	 * An array of timeline items which have been added.
+	// 	 */
+	// 	readonly items: readonly TimelineItem[];
 
-		/**
-		 * An array of timeline items which have been added.
-		 */
-		readonly items: readonly TimelineItem[];
+	// 	/**
+	// 	 * The uri of the file to which the timeline items belong.
+	// 	 */
+	// 	readonly uri: Uri;
+	// }
 
-		/**
-		 * The uri of the file to which the timeline items belong.
-		 */
-		readonly uri: Uri;
-	}
+	// export interface TimelimeChangeEvent {
+	// 	/**
+	// 	 * The date after which the timeline has changed. If `undefined` the entire timeline will be reset.
+	// 	 */
+	// 	readonly since?: Date;
 
-	export interface TimelimeChangeEvent {
-
-		/**
-		 * The date after which the timeline has changed. If `undefined` the entire timeline will be reset.
-		 */
-		readonly since?: Date;
-
-		/**
-		 * The uri of the file to which the timeline changed.
-		 */
-		readonly uri: Uri;
-	}
+	// 	/**
+	// 	 * The uri of the file to which the timeline changed.
+	// 	 */
+	// 	readonly uri: Uri;
+	// }
 
 	export interface TimelineProvider {
 		// onDidAdd?: Event<TimelimeAddEvent>;
 		// onDidChange?: Event<TimelimeChangeEvent>;
-		id: string;
+
+		onDidChange?: Event<void>;
+
+		/**
+		 * An identifier of the source of the timeline items. This can be used for filtering and/or overriding existing sources.
+		 */
+		source: string;
+
+		/**
+		 * A human-readable string describing the source of the timeline items. This can be as the display label when filtering by sources.
+		 */
+		sourceDescription: string;
+
+		replaceable?: boolean;
 
 		/**
 		 * Provide [timeline items](#TimelineItem) for a [Uri](#Uri) after a particular date.
