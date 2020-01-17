@@ -87,10 +87,6 @@ class MainThreadSCMResource implements ISCMResource {
 
 class MainThreadSCMProvider implements ISCMProvider {
 
-	private static ID_HANDLE = 0;
-	private _id = `scm${MainThreadSCMProvider.ID_HANDLE++}`;
-	get id(): string { return this._id; }
-
 	readonly groups = new Sequence<MainThreadSCMResourceGroup>();
 	private readonly _groupsByHandle: { [handle: number]: MainThreadSCMResourceGroup; } = Object.create(null);
 
@@ -129,6 +125,7 @@ class MainThreadSCMProvider implements ISCMProvider {
 	readonly onDidChange: Event<void> = this._onDidChange.event;
 
 	constructor(
+		readonly id: string,
 		private readonly proxy: ExtHostSCMShape,
 		private readonly _handle: number,
 		private readonly _contextValue: string,
@@ -287,8 +284,8 @@ export class MainThreadSCM implements MainThreadSCMShape {
 		this._disposables.dispose();
 	}
 
-	$registerSourceControl(handle: number, id: string, label: string, rootUri: UriComponents | undefined): void {
-		const provider = new MainThreadSCMProvider(this._proxy, handle, id, label, rootUri ? URI.revive(rootUri) : undefined, this.scmService);
+	$registerSourceControl(handle: number, uuid: string, contextValue: string, label: string, rootUri: UriComponents | undefined): void {
+		const provider = new MainThreadSCMProvider(uuid, this._proxy, handle, contextValue, label, rootUri ? URI.revive(rootUri) : undefined, this.scmService);
 		const repository = this.scmService.registerSCMProvider(provider);
 		this._repositories.set(handle, repository);
 

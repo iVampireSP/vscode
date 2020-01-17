@@ -17,6 +17,8 @@ import { ISplice } from 'vs/base/common/sequence';
 import { ILogService } from 'vs/platform/log/common/log';
 import { CancellationToken } from 'vs/base/common/cancellation';
 import { ExtensionIdentifier, IExtensionDescription } from 'vs/platform/extensions/common/extensions';
+import { Schemas } from 'vs/base/common/network';
+import { generateUuid } from 'vs/base/common/uuid';
 
 type ProviderHandle = number;
 type GroupHandle = number;
@@ -172,8 +174,26 @@ export class ExtHostSCMInputBox implements vscode.SourceControlInputBox {
 		this._proxy.$setInputBoxVisibility(this._sourceControlHandle, visible);
 	}
 
-	constructor(private _proxy: MainThreadSCMShape, private _sourceControlHandle: number) {
-		// noop
+	readonly resource: vscode.Uri;
+
+	constructor(
+		private _proxy: MainThreadSCMShape,
+		private _sourceControlHandle: number,
+		contextValue: string,
+		uuid: string,
+		rootUri?: vscode.Uri
+	) {
+		let query: string | undefined;
+
+		if (rootUri) {
+			query = `rootUri=${encodeURIComponent(rootUri.toString())}`;
+		}
+
+		this.resource = URI.from({
+			scheme: Schemas.vscode,
+			path: `scm/${contextValue}/${uuid}/input`,
+			query
+		});
 	}
 
 	$onInputBoxValueChange(value: string): void {
@@ -319,6 +339,7 @@ class ExtHostSourceControl implements vscode.SourceControl {
 	private static _handlePool: number = 0;
 	private _groups: Map<GroupHandle, ExtHostSourceControlResourceGroup> = new Map<GroupHandle, ExtHostSourceControlResourceGroup>();
 
+	private _id: string;
 	get id(): string {
 		return this._id;
 	}
@@ -426,12 +447,15 @@ class ExtHostSourceControl implements vscode.SourceControl {
 		_extension: IExtensionDescription,
 		private _proxy: MainThreadSCMShape,
 		private _commands: ExtHostCommands,
-		private _id: string,
+		contextValue: string,
 		private _label: string,
 		private _rootUri?: vscode.Uri
 	) {
-		this._inputBox = new ExtHostSCMInputBox(this._proxy, this.handle);
-		this._proxy.$registerSourceControl(this.handle, _id, _label, _rootUri);
+		const uuid = generateUuid();
+		this._id = contextValue;
+
+		this._inputBox = new ExtHostSCMInputBox(this._proxy, this.handle, contextValue, uuid, _rootUri);
+		this._proxy.$registerSourceControl(this.handle, uuid, contextValue, _label, _rootUri);
 	}
 
 	private updatedResourceGroups = new Set<ExtHostSourceControlResourceGroup>();

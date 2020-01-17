@@ -923,6 +923,21 @@ declare module 'vscode' {
 
 	//#endregion
 
+	//#region Joao: SCM Input Box URI
+
+	/**
+	 * Represents the input box in the Source Control viewlet.
+	 */
+	export interface SourceControlInputBox {
+
+		/**
+			* The [resource](#Uri) opened by the input box.
+			*/
+		readonly resource: Uri;
+	}
+
+	//#endregion
+
 	//#region Terminal data write event https://github.com/microsoft/vscode/issues/78502
 
 	export interface TerminalDataWriteEvent {

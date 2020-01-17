@@ -8,6 +8,8 @@ import { Event, Emitter } from 'vs/base/common/event';
 import { ISCMService, ISCMProvider, ISCMInput, ISCMRepository } from './scm';
 import { ILogService } from 'vs/platform/log/common/log';
 import { equals } from 'vs/base/common/arrays';
+import { URI } from 'vs/base/common/uri';
+import { Schemas } from 'vs/base/common/network';
 
 class SCMInput implements ISCMInput {
 
@@ -56,6 +58,22 @@ class SCMInput implements ISCMInput {
 
 	private readonly _onDidChangeVisibility = new Emitter<boolean>();
 	readonly onDidChangeVisibility: Event<boolean> = this._onDidChangeVisibility.event;
+
+	readonly uri: URI;
+
+	constructor(provider: ISCMProvider) {
+		let query: string | undefined;
+
+		if (provider.rootUri) {
+			query = `rootUri=${encodeURIComponent(provider.rootUri.toString())}`;
+		}
+
+		this.uri = URI.from({
+			scheme: Schemas.vscode,
+			path: `scm/${provider.contextValue}/${provider.id}/input`,
+			query
+		});
+	}
 }
 
 class SCMRepository implements ISCMRepository {
@@ -71,7 +89,7 @@ class SCMRepository implements ISCMRepository {
 	private readonly _onDidChangeSelection = new Emitter<boolean>();
 	readonly onDidChangeSelection: Event<boolean> = this._onDidChangeSelection.event;
 
-	readonly input: ISCMInput = new SCMInput();
+	readonly input: ISCMInput = new SCMInput(this.provider);
 
 	constructor(
 		public readonly provider: ISCMProvider,

@@ -79,6 +79,8 @@ export interface IInputValidator {
 }
 
 export interface ISCMInput {
+	readonly uri: URI;
+
 	value: string;
 	readonly onDidChange: Event<string>;
 

@@ -65,7 +65,6 @@ import { format } from 'vs/base/common/strings';
 import { inputPlaceholderForeground } from 'vs/platform/theme/common/colorRegistry';
 import { SuggestController } from 'vs/editor/contrib/suggest/suggestController';
 import { SnippetController2 } from 'vs/editor/contrib/snippet/snippetController2';
-import { Schemas } from 'vs/base/common/network';
 import { ModesHoverController } from 'vs/editor/contrib/hover/hover';
 import { ColorDetector } from 'vs/editor/contrib/colorPicker/colorDetector';
 
@@ -707,19 +706,7 @@ export class RepositoryPane extends ViewPane {
 		this._register(this.inputEditor.onDidFocusEditorText(() => addClass(editorContainer, 'synthetic-focus')));
 		this._register(this.inputEditor.onDidBlurEditorText(() => removeClass(editorContainer, 'synthetic-focus')));
 
-		let query: string | undefined;
-
-		if (this.repository.provider.rootUri) {
-			query = `rootUri=${encodeURIComponent(this.repository.provider.rootUri.toString())}`;
-		}
-
-		const uri = URI.from({
-			scheme: Schemas.vscode,
-			path: `scm/${this.repository.provider.contextValue}/${this.repository.provider.id}/input`,
-			query
-		});
-
-		this.inputModel = this.modelService.createModel('', null, uri);
+		this.inputModel = this.modelService.createModel('', null, this.repository.input.uri);
 		this.inputEditor.setModel(this.inputModel);
 
 		this.inputEditor.changeViewZones(accessor => {
